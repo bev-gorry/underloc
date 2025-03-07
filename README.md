@@ -90,7 +90,15 @@ The following forked repositories are included in **UnderLoc** to enable evaluat
 Thanks for using our work. You can cite it as:
 
 ```bibtex
-CITATION WILL BE AVAIALABLE ONCE THE PAPER IS SHARED ON ARXIV
+@misc{gorry2025imagebasedrelocalizationalignmentlongterm,
+      title={Image-Based Relocalization and Alignment for Long-Term Monitoring of Dynamic Underwater Environments}, 
+      author={Beverley Gorry and Tobias Fischer and Michael Milford and Alejandro Fontan},
+      year={2025},
+      eprint={2503.04096},
+      archivePrefix={arXiv},
+      primaryClass={cs.RO},
+      url={https://arxiv.org/abs/2503.04096}, 
+}
 ```
 
 We also encourage citing [VPR-methods-evaluation](https://github.com/gmberton/VPR-methods-evaluation), [MegaLoc](https://arxiv.org/abs/2502.17237), [LightGlue](https://github.com/cvg/LightGlue), and [SAM2](https://github.com/facebookresearch/sam2).
