@@ -1,0 +1,150 @@
+[project]
+authors = ["bev-gorry <beverley_g@hotmail.com>"]
+channels = ["conda-forge"]
+description = "VPR-SEGMENTATION"
+name = "vpr-segment"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[tasks]
+plot_trajectories = {cmd = "pixi run -e underloc python underloc_utilities.py plot_trajectories $ARGUMENT", env = {ARGUMENT = "arguments/args_demo.yaml"}}
+get_dataset_info = {cmd = "pixi run -e underloc python underloc_utilities.py dataset_info $ARGUMENT", env = {ARGUMENT = "arguments/args_demo.yaml"}}
+create_groundtruth = {cmd = "pixi run -e underloc python underloc_utilities.py create_groundtruth $ARGUMENT", env = {ARGUMENT = "arguments/args_demo.yaml"}}
+
+create_squidle_dataset = {cmd = "pixi run -e underloc download_squidle_ds --yaml_file ../$ARGUMENT && ARGUMENT=$ARGUMENT pixi run get_dataset_info && ARGUMENT=$ARGUMENT pixi run plot_trajectories", env = {ARGUMENT = "arguments/args_dataset.yaml"}}
+create_eiffel_dataset = {cmd = "pixi run -e underloc download_eiffel_ds --yaml_file ../$ARGUMENT && ARGUMENT=$ARGUMENT pixi run get_dataset_info && ARGUMENT=$ARGUMENT pixi run plot_trajectories", env = {ARGUMENT = "arguments/args_dataset_eiffel.yaml"}}
+
+evaluate = {cmd = "pixi run -e underloc python evaluate.py --yaml_file $ARGUMENT", env = {ARGUMENT = "arguments/args_demo.yaml"}}
+
+vpr = {cmd = "pixi run create_groundtruth --yaml_file ../$ARGUMENT && pixi run -e vpr execute --yaml_file ../$ARGUMENT && pixi run -e vpr save_top_n --yaml_file ../$ARGUMENT && ARGUMENT=$ARGUMENT pixi run evaluate", env = {ARGUMENT = "arguments/args_demo.yaml"}}
+superpoint-h = {cmd = "pixi run -e lightglue hierarchical --yaml_file ../$ARGUMENT && pixi run -e lightglue save_top_n --yaml_file ../$ARGUMENT && ARGUMENT=$ARGUMENT pixi run evaluate", env = {ARGUMENT = "arguments/args_demo.yaml"}}
+pipeline = {cmd = "pixi run create_groundtruth --yaml_file ../$ARGUMENT && pixi run -e vpr run_all --yaml_file ../$ARGUMENT && pixi run -e lightglue hierarchical --yaml_file ../$ARGUMENT && pixi run -e vpr save_top_n --yaml_file ../$ARGUMENT && pixi run -e lightglue save_top_n --yaml_file ../$ARGUMENT && ARGUMENT=$ARGUMENT pixi run evaluate", env = {ARGUMENT = "arguments/args_demo.yaml"}}
+
+[environments]
+underloc = {features = ["underloc"], no-default-feature = true}
+vpr = {features = ["vpr"], no-default-feature = true}
+lightglue = {features = ["lightglue"], no-default-feature = true}
+sam = {features = ["sam"], no-default-feature = true}
+
+# UNDERLOC #
+[feature.underloc]
+channels = ["conda-forge"]
+platforms = ["linux-64"]
+
+[feature.underloc.tasks]
+download_squidle_ds = {cmd = "python dataset_squidle.py", cwd = "datasets"}
+download_eiffel_ds = {cmd = "python dataset_eiffel.py", cwd = "datasets"}
+
+[feature.underloc.dependencies]
+python = ">=3.13.1,<3.14"
+opencv = ">=4.11.0,<5"
+requests = ">=2.32.3,<3"
+pandas = ">=2.2.3,<3"
+matplotlib = ">=3.10.0,<4"
+tqdm = ">=4.67.1,<5"
+transforms3d = ">=0.4.2,<0.5"
+pyyaml = ">=6.0.2,<7"
+haversine = "*"
+seaborn = ">=0.13.2,<0.14"
+scikit-learn = "=1.6.1"
+datasets = "*"
+
+# VPR #
+[feature.vpr]
+channels = ["conda-forge", "pytorch"]
+platforms = ["linux-64"]
+
+[feature.vpr.system-requirements]
+cuda = "12.0"
+
+[feature.vpr.tasks]
+git-clone = {cmd = "git-clone.sh bev-gorry VPR-methods-evaluation Baselines"}
+execute = {cmd = "python vpr.py", cwd = "vpr", depends-on = ["git-clone"]}
+run_all = {cmd = "python run_all_methods.py", cwd = "vpr"}
+save_top_n = {cmd = "python vpr_save_top_n.py", cwd = "vpr"}
+
+[feature.vpr.dependencies]
+python = "*"
+pyyaml = "*"
+tqdm = "*"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+haversine = "*"
+scikit-image = "*"
+scikit-learn = "=1.6.1"
+scipy = "=1.15.1"
+faiss-cpu = "=1.8.0"
+pytorch-gpu = "*"
+torchvision = ">=0.3"
+loguru = "*"
+gdown = "*"
+einops = "*"
+pyproj = ">=3.7.1,<4"
+psutil = "*"
+seaborn = ">=0.13.2,<0.14"
+timm = ">=1.0.15,<2"
+
+[feature.vpr.pypi-dependencies]
+opencv-python = "*"
+fast-pytorch-kmeans = "*"
+
+
+# LIGHTGLUE #
+[feature.lightglue]
+channels = ["conda-forge", "nvidia/label/cuda-12.0.0"]
+platforms = ["linux-64"]
+
+[feature.lightglue.system-requirements]
+cuda = "12.0"
+
+[feature.lightglue.tasks]
+git-clone = {cmd = "git-clone.sh cvg LightGlue Baselines"}
+brute_force = {cmd = "python superpoint_brute_force.py", cwd = "featurematching", depends-on = ["git-clone"]}
+hierarchical = {cmd = "python superpoint_hierarchical.py", cwd = "featurematching", depends-on = ["git-clone"]}
+save_top_n = {cmd = "python superpoint_save_top_n.py", cwd = "featurematching"}
+batched = {cmd = "python superpoint_batched.py", cwd = "featurematching", depends-on = ["git-clone"]}
+combine_batches = {cmd = "python superpoint_combine_batches.py", cwd = "featurematching"}
+
+[feature.lightglue.dependencies]
+pytorch-gpu = "*"
+torchvision = ">=0.3"
+tqdm = "*"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+kornia = ">=0.6.11"
+pyyaml = ">=6.0.2,<7"
+haversine = "*"
+seaborn = ">=0.13.2,<0.14"
+
+[feature.lightglue.pypi-dependencies]
+opencv-python = "*"
+
+# SAM #
+[feature.sam]
+channels = ["conda-forge", "nvidia/label/cuda-12.0.0"]
+platforms = ["linux-64"]
+
+[feature.sam.tasks]
+git-clone = {cmd = "git-clone.sh facebookresearch sam2 Baselines"}
+execute = {cmd = "python segment.py", cwd = "segmentation", depends-on = ["git-clone"]}
+
+[feature.sam.dependencies]
+python = "*"
+pytorch-gpu = "*"
+torchvision = ">=0.3"
+pyyaml = "*"
+tqdm = "*"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+seaborn = ">=0.13.2,<0.14"
+requests = ">=2.32.3,<3"
+hydra = ">=2.5,<3"
+hydra-core = ">=1.3.2"
+iopath = ">=0.1.10"
+pillow = ">=9.4.0"
+
+[feature.sam.pypi-dependencies]
+opencv-python = "*"

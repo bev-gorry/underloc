@@ -1,0 +1,3 @@
+csv_file: squidle_csv/collection-u2171-OKINAWA-13493-5c1b50ccfc7659006ea4-dataframe.csv
+dataset_path: ../../SQUIDLE-VPR-BENCHMARK/OKINAWA
+resolution: 640,480   # please use the format W,H, e.g., 640,480

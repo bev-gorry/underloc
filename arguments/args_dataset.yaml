@@ -1,0 +1,3 @@
+csv_file: squidle_csv/demo_okinawa.csv
+dataset_path: ../../SQUIDLE-VPR-BENCHMARK/DEMO
+resolution: 640,480   # please use the format W,H, e.g., 640,480

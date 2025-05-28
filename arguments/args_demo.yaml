@@ -1,0 +1,14 @@
+benchmark: ../../SQUIDLE-VPR-BENCHMARK
+
+vpr_method: megaloc
+vpr_loc_radius: 5
+vpr_similarity_threshold: 0.85
+
+segmentation_checkpoint_url: https://dl.fbaipublicfiles.com/segment_anything_2/092824/sam2.1_hiera_large.pt
+
+log_path: default
+visualize: false
+
+dataset: DEMO
+query_folder: ssk18-01_tuna_sand_20181002_063627_ts_un6k_images
+dbs_folder: ssk17-01_tuna_sand_20170817_041459_ts_un6k_images
