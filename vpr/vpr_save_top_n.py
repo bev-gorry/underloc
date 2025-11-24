@@ -120,11 +120,16 @@ def main():
         # retrieve the top n vpr matches
         top_n_results = get_top_n_pairs(similarity_matrix, visualize_top_n)
         
+        image0_name = query_df.iloc[top_n_results['query'], 1].apply(os.path.basename).values
+        image1_name = db_df.iloc[top_n_results['db'], 1].apply(os.path.basename).values
+        
         # convert the query and database indices to integers
         matches_df = pd.DataFrame({
             'query': top_n_results['query'].astype(int),
             'database': top_n_results['db'].astype(int),
-            'similarity': top_n_results['similarity']
+            'similarity': top_n_results['similarity'],
+            'image0_name': image0_name,
+            'image1_name': image1_name
         })
 
         # write the image indices and similarity scores to a csv file
